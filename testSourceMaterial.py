@@ -1,0 +1,16 @@
+import phonetics
+import spellyzer
+
+import os
+def readFile():
+	input_file = open('lil_wayne.txt', 'r')
+	input_text = input_file.read()
+	ipa_file_name = 'lil_wayne.txt.ipa'
+	ipa_file = open(ipa_file_name, 'w+')
+	ipa_text = phonetics.get_phonetic_transcription(input_text.decode('utf-8'))
+	ipa_file.write(ipa_text)
+        print('Number of characters:' + str(len(input_text)) )
+	spellyzer.get_spelling_error_rate(input_text)
+
+if __name__ == '__main__':
+	readFile()
