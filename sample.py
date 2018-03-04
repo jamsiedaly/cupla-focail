@@ -63,3 +63,4 @@ def sample(save_dir, n, prime, sample, artist_name, details):
 
 if __name__ == '__main__':
     main()
+
