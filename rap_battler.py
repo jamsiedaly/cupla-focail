@@ -15,6 +15,8 @@ from six import text_type
 import pyttsx
 
 def main():
+    engine = pyttsx.init()
+    engine.setProperty('voice', 'en-scottish')  # changes the voi
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--sample', type=int, default=1,
@@ -24,7 +26,6 @@ def main():
                         help='Number of turns the game will play out')
 
     args = parser.parse_args()
-    engine = pyttsx.init()
 
     save_dir='save'
     with open(os.path.join(save_dir, 'config.pkl'), 'rb') as f:
@@ -39,7 +40,7 @@ def main():
         for i in range(2):
             print(output[i])
             engine.say(output[i])
-            bug = engine.runAndWait()
+        engine.runAndWait()
 
 model = None
 
