@@ -26,7 +26,6 @@ def main():
                         help='Number of turns the game will play out')
 
     args = parser.parse_args()
-    engine = pyttsx.init()
 
     save_dir='save'
     with open(os.path.join(save_dir, 'config.pkl'), 'rb') as f:

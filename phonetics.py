@@ -61,7 +61,7 @@ def get_phonetic_transcription(text, language='en-us', output_fname=None):
         fname2 = output_fname
 
     if output_fname is None or not os.path.exists(fname2):
-        print "Transcribing: %s" % fname2
+        print("Transcribing: %s" % fname2)
         fname = u'temp_lyrics.txt'
         f = codecs.open(fname, 'w', 'utf8')
         f.write(text)
