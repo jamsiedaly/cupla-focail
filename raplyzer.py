@@ -106,7 +106,7 @@ def read_lyrics(lyrics_dir='Experiment Outcomes', artist=None, album=None,
     song_names = np.array(song_names)
     song_names = song_names[np.argsort(song_scores)[::-1]]
     song_scores = sorted(song_scores)[::-1]
-    for i in range(min(10,len(song_scores))):
+    for i in range(len(song_scores)):
         print '%.3f\t%s' % (song_scores[i], song_names[i])
 
     print "\nBest artists:"
