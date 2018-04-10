@@ -21,11 +21,9 @@ def openscreen():
     for line in biggie_in_lines:
         line = '\t\t\t\t\t\t' + line
         tabbed_biggie = tabbed_biggie + line + '\n'
-
     message = bold('''\t\t\t\t\t\t\t\t\tRap Battler by James Daly.
         \t\t\t\t\t\tWhen  you type a line hit enter to move to the next line.
         \t\t\t\t\t\tYou and the AI will take turns writing two lines at a time.''')
-
     lay_bars = text.Text("Lay some bars...", color="#ff8800", shadow=True, skew=0)
     gap = '\n\n'
 
@@ -36,66 +34,20 @@ def openscreen():
     print(lay_bars)
     print(gap)
 
-def main():
-
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--sample', type=int, default=1,
-                        help='0 to use max at each timestep, 1 to sample at '
-                             'each timestep, 2 to sample on spaces')
-    parser.add_argument('--turns', type=int, default=10,
-                        help='Number of turns the game will play out')
-
-    args = parser.parse_args()
-
-    save_dir='save'
-    with open(os.path.join(save_dir, 'config.pkl'), 'rb') as f:
-        saved_args = cPickle.load(f)
-        model = Model(saved_args, training=False)
-
-
+def usersTurn(split_lines):
     you = text.Text('You:', color='#0022ff', shadow=False, fsize=14)
-    split_lines = '\n\n' + bold(green('\t\t\t\t____________________________________________________________________________________________________________________________________________')) + '\n\n'
-    indent = '\t\t\t\t\t\t\t'
+    print(you)
+    input = getInput()
+    print(split_lines)
+    return input
 
-    having_fun = True
+def getInput():
+    text1 = raw_input('\t\t\t\t\t\t\t')
+    text2 = raw_input('\t\t\t\t\t\t\t')
+    text = text1 + text2
+    return text
 
-    while(having_fun):
-        openscreen()
-        for i in range(args.turns):
-            print(you)
-            input = get_input()
-            print(split_lines)
-            raw_text = battle(input, args.sample, model)
-            output = format_text(raw_text)
-            print(text.Text('AI:', color='#ff2200', shadow=False, fsize=14))
-            for i in range(2):
-                print((indent + output[i]))
-                time.sleep(0.5)
-            print(split_lines)
-            time.sleep(0.5)
-        answered = False
-        answer = raw_input(text.Text("Play again? yes or no", color="ffffff", shadow=False, skew=6))
-        answer = answer.lower()
-        if answer == 'yes' or answer == 'y':
-            having_fun = True
-            answered = True
-        elif answer == 'no' or answer == 'n':
-            having_fun = False
-            answered = True
-        else:
-            while not answered:
-                answer = raw_input('Please answer yes or no!\t')
-                if answer == 'yes' or answer == 'y':
-                    having_fun = True
-                    answered = True
-                elif answer == 'no'  or answer == 'n':
-                    having_fun = False
-                    answered = True
-
-
-
-def battle(prime, sample, model):
+def generateLyrics(prime, sample, model):
     char_pool_size = 2000
     save_dir = 'save'
     with open(os.path.join(save_dir, 'chars_vocab.pkl'), 'rb') as f:
@@ -109,13 +61,7 @@ def battle(prime, sample, model):
             generated_text = model.sample(sess, chars, vocab, char_pool_size, prime, sample).encode('utf-8')
             return generated_text
 
-def get_input():
-    text1 = raw_input('\t\t\t\t\t\t\t')
-    text2 = raw_input('\t\t\t\t\t\t\t')
-    text = text1 + text2
-    return text
-
-def format_text(text):
+def formatText(text):
     lines = text.splitlines()
     valid_lines = []
     for line in lines:
@@ -124,6 +70,69 @@ def format_text(text):
     valid_lines.pop(0)
     return valid_lines
 
+def aisTurn(output, indent, split_lines):
+    print(text.Text('AI:', color='#ff2200', shadow=False, fsize=14))
+    for i in range(2):
+        print((indent + output[i]))
+        time.sleep(0.5)
+    print(split_lines)
+    time.sleep(0.5)
+
+def playAgain():
+    answered = False
+    answer = raw_input(text.Text("Play again? yes or no", color="ffffff", shadow=False, skew=6))
+    answer = answer.lower()
+    having_fun = False
+    if answer == 'yes' or answer == 'y':
+        having_fun = True
+        answered = True
+    elif answer == 'no' or answer == 'n':
+        having_fun = False
+        answered = True
+    else:
+        while not answered:
+            answer = raw_input('Please answer yes or no!\t')
+            if answer == 'yes' or answer == 'y':
+                having_fun = True
+                answered = True
+            elif answer == 'no' or answer == 'n':
+                having_fun = False
+                answered = True
+    return having_fun
+
+
+def main():
+
+    #collecting command line arguments
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--sample', type=int, default=1,
+                        help='0 to use max at each timestep, 1 to sample at '
+                             'each timestep, 2 to sample on spaces')
+    parser.add_argument('--turns', type=int, default=10,
+                        help='Number of turns the game will play out')
+    args = parser.parse_args()
+
+    #loading up the model
+    save_dir='save'
+    with open(os.path.join(save_dir, 'config.pkl'), 'rb') as f:
+        saved_args = cPickle.load(f)
+        model = Model(saved_args, training=False)
+
+    #formatting of screen text
+    indent = '\t' * 7
+    split_lines = '\n\n' + bold(green(indent + ('_' * 140))) + '\n\n'
+
+    having_fun = True
+    while(having_fun):
+        openscreen()
+        for i in range(args.turns):
+            input = usersTurn(split_lines)
+            raw_text = generateLyrics(input, args.sample, model)
+            output = formatText(raw_text)
+            aisTurn(output, indent, split_lines)
+        having_fun = playAgain()
+
+
 if __name__ == '__main__':
     main()
-
